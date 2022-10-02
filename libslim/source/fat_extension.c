@@ -53,6 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "charset.h"
 #include "cache.h"
+#include "tonccpy.h"
 
 bool configureDefault(const char *root)
 {
@@ -88,4 +89,33 @@ bool configureDefault(const char *root)
 bool configureCache(uint32_t cacheSize)
 {
     return cache_init(cacheSize) != NULL;
+}
+
+void SLIM_getsfn(const char *_path,char *sfn) {
+	static char buf[256*3], ret[256*3];
+	int len;
+	FILINFO fs;
+
+	if(!_path) return;
+	if(!strchr(_path, '/')) return;
+	if(!sfn) return;
+	toncset(&buf, 0, 256 * 3);
+	toncset(sfn, 0, 256);
+	toncset(&ret, 0, 256 * 3);
+	const char *path = _path;
+	for(; *path != '/'; path++);
+	len = strlen(path);
+	for(int i=1; i <= len; i++){
+		if(path[i] == '/' || i == len){
+			toncset(&fs, 0, sizeof(FILINFO));
+			strncpy(buf, path, i);
+			if(f_stat(mbstoucs2(buf, NULL), &fs)) return;
+			strcat(sfn, "/");
+#if FF_USE_LFN
+            ucs2tombs(sfn, fs.altname);
+#else
+            strcpy(sfn, fs.fname);
+#endif
+		}
+	}
 }

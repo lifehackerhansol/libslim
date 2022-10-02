@@ -112,6 +112,11 @@ extern "C"
    */
   bool configureCache(uint32_t cacheSize);
 
+  /**
+   * Get the 8.3 short file name (SFN) of a given UTF-8 file path.
+   */
+  void SLIM_getsfn(const char *_path,char *sfn);
+
 // File attributes
 #define ATTR_ARCHIVE    0x20   // Archive
 #define ATTR_DIRECTORY  0x10 // Directory
